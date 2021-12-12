@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>Chatアプリ</title>
+<link rel="stylesheet" href="sample.css">
+</head>
+<body>
+<!-- div>div*3 -->
+<header>
+    Chats
+</header>
+<div>
+    <div>
+        <p id="output"></p>
+    </div>
+    <button id="alldelete">ALL DELETE</button>
+</div>
+<div>
+    <div>
+        NAME: <input type="text" id="uname">
+    </div>
+    <div>
+        <textarea name="" id="text" cols="30" rows="5"></textarea>
+        <button id="send">SEND</button>
+    </div>
+</div>
+
+<!--/ コンテンツ表示画面 -->
+
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<!--** 以下Firebase **-->
+<script type="module">
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+import { getDatabase, ref, push, set, onChildAdded, remove, onChildRemoved }
+from "https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.0/firebase-database.min.js";
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+    apiKey: "",
+    authDomain: "gsapp-d30cd.firebaseapp.com",
+    projectId: "gsapp-d30cd",
+    storageBucket: "gsapp-d30cd.appspot.com",
+    messagingSenderId: "131834188622",
+    appId: "1:131834188622:web:01ab95b82d66cd28df441f"
+};
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app); //RealtimeDBに接続
+    const dbRef = ref(db, "chat"); //RealtimeDB内の”chat”を使う
+
+    $("#send").on("click", function () {
+        const uname = $("#uname").val();
+        const text = $("#text").val(); //取得確認
+    });
+
+    $("#send").on("click", function () {
+        const msg = {
+            uname: $("#uname").val(),
+            text: $("#text").val()
+        }
+        const newPostRef = push(dbRef); //pushできる状態にする
+        set(newPostRef, msg); //DBに値を送信
+    });
+
+
+    $("#alldelete").on("click", function(){
+        $("#output").empty();
+    });
+
+    // Enterキー押下時、送信処理が実行する
+    $("#text").on("keydown", function(e){
+       if(e.keyCode === 13){
+            const uname = $("#uname").val();
+            const text = $("#text").val();
+            const msg = {
+                uname: uname,
+                text: text
+        };
+        const newPostRef = push(dbRef);
+        set(newPostRef, msg);
+       }
+    });
+
+    // onChildAdded(dbRef, function (data) {
+    //     const msg = data.val();
+    //     console.log(msg);
+    //     let h = "<p>";
+    //         h += msg.uname;
+    //         h += "<br>";
+    //         h += msg.text;
+    //         h += "<p>";
+    //     $("#output").append(h);
+    // });
+    
+    onChildAdded(dbRef, function (data) {
+        const msg = data.val();
+        const key = data.key; //keyを取得
+        const myname = $("#uname").val();
+
+        console.log(msg); //値確認
+        console.log(key);
+        console.log(myname);
+        console.log(msg.uname);
+        // if(msg.uname == myname){ //if構文
+
+        // let h = '<div id="mymessagediv">';
+        //     h += '<div id="myname">';
+        //     h += msg.uname
+        //     h += '</div>'
+            
+        //     h += '<div id="mymsgdelete">'
+        //     h += '<div id="mymessage">'
+        //     h += msg.text;
+        //     h += '</div>'
+        //     h += '<button id="delete" class="';
+        //     h += key;
+        //     h += '"">削除</button>';
+        //     h += '</div>';
+
+        //     h += '<div id="mydate">';
+        //     h += msg.date2;
+        //     h += '</div></div>';
+        //     $("#output").append(h); 
+        // }else{
+        //     let h = '<div id="mymessagediv">';
+        //     h += '<div id="myname">';
+        //     h += msg.uname
+        //     h += '</div>'
+            
+        //     h += '<div id="mymsgdelete">'
+        //     h += '<div id="mymessage">'
+        //     h += msg.text;
+        //     h += '</div>'
+        //     h += '<button id="delete" class="';
+        //     h += key;
+        //     h += '"">削除</button>';
+        //     h += '</div>';
+
+        //     h += '<div id="mydate">';
+        //     h += msg.date2;
+        //     h += '</div></div>';
+        //     $("#output").append(h); 
+        // }
+        let h = "<div class='message'>";
+            h += msg.uname
+            h += "<br>";
+            h += msg.text;
+            h += "<button class='remove' id='";
+            h += key;
+            h +="'>DELETE</button>";
+            h += "</div>";
+        $("#output").append(h); //#outputの最後に追加
+    });
+
+    $(document).on("click",".remove",function(){
+        remove(ref(db, "chat/" +$(this).attr("id")));
+        $(this).parent().remove();  
+    });
+
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
